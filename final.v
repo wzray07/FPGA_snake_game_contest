@@ -4,6 +4,8 @@ module final(
 	output reg enable,
 	output reg [7:0] point,
 	output reg beep,
+	output reg [6:0] seg,
+	output reg [1:0] COM,
 	input SYS_CLK,RST,PAUSE,UP,DOWN,LEFT,RIGHT);
  
 	reg [1:0]state;//01 is gameing 10 is end
@@ -31,12 +33,21 @@ module final(
  
 	reg [24:0] led_counter;
 	reg [24:0] move_counter;
+	reg [25:0] seg_counter;
+	reg [24:0] timer_counter;
 	reg [1:0] move_dir;
+	reg [3:0] time_num10;
  
+ 	reg [3:0] time_num01;
  
+	reg CLK_div1;
+	reg CLK_div2;
  
 	integer led_count_to =50000;//led clk  1khz display
 	integer count_to = 4500000; //game_clk 0.5hz
+	integer timer_to = 25000000;
+	integer seg_to = 250000;
+ 
  
 	initial begin
 		//initial Led
@@ -97,6 +108,12 @@ module final(
 		length = 3;
 		state =2'b01;
 		move_dir = 2'b00;//when game start ,snake dir//
+ 
+		seg = 7'b0000000;
+		COM = 2'b00;
+		time_num10 = 4'b0000;
+		time_num01 = 4'b0000;
+ 
 	end
  
  
@@ -128,6 +145,20 @@ module final(
 		else	begin
 			led_counter <= 25'b0;
 			led_clk <= ~led_clk;
+		end
+ 
+		if(seg_counter < seg_to)
+			seg_counter <= seg_counter + 1;
+		else	begin
+			seg_counter <= 26'b0;
+			CLK_div2 <= ~CLK_div2;
+		end
+ 
+		if(timer_counter < timer_to)
+			timer_counter <= timer_counter + 1;
+		else	begin
+			timer_counter <= 25'b0;
+			CLK_div1 <= ~CLK_div1;
 		end
 	end	
  
@@ -257,11 +288,83 @@ module final(
  
  
 	end
+ 
 	always@(beep_clk) begin
 		if(beep_clk == 1'b1)
 			beep = 1'b1;
 		else
 			beep = 1'b0;
 	end
+ 
+	//divfreq F0(SYS_CLK, CLK_div1, CLK_div2);
+ 
+	always @(posedge CLK_div1, posedge RST, posedge PAUSE) begin
+      if (RST == 1'b1) begin
+         time_num10 <= 4'b0000;
+         time_num01 <= 4'b0000;
+      end
+		else if(PAUSE == 1'b1);
+		else if(time_num01 == 4'b0000 && time_num10 == 4'b0110) ;
+      else begin
+         if (time_num01 == 4'b1001) begin
+            time_num01 <= 4'b0000;
+            if (time_num10 == 4'b0110) time_num10 <= 4'b0110;
+            else time_num10 <= time_num10 + 1'b1;
+         end
+         else time_num01 <= time_num01 + 1'b1;
+      end
+   end
+	always @(posedge CLK_div2) begin
+      if (COM == 2'b01) COM <= 2'b10;
+      else COM <= 2'b01;
+   end
+	always @(COM) begin
+        if (COM == 2'b01) begin
+            case(time_num01)
+                4'b0000: seg = 7'b0000001;
+                4'b0001: seg = 7'b1001111;
+                4'b0010: seg = 7'b0010010;
+                4'b0011: seg = 7'b0000110;
+                4'b0100: seg = 7'b1001100;
+                4'b0101: seg = 7'b0100100;
+                4'b0110: seg = 7'b0100000;
+                4'b0111: seg = 7'b0001111;
+                4'b1000: seg = 7'b0000000;
+                4'b1001: seg = 7'b0000100;
+                default: seg = 7'b1111111;
+            endcase
+        end
+        else if (COM == 2'b10) begin
+            case(time_num10)
+                4'b0000: seg = 7'b0000001;
+                4'b0001: seg = 7'b1001111;
+                4'b0010: seg = 7'b0010010;
+                4'b0011: seg = 7'b0000110;
+                4'b0100: seg = 7'b1001100;
+                4'b0101: seg = 7'b0100100;
+                default: seg = 7'b1111111;
+            endcase
+        end
+    end
 	//
 endmodule
+ 
+module divfreq(input clk, output reg clk_divs1, output reg clk_divs10);
+    reg [24:0] count_s1 = 25'b0;
+    reg [24:0] count_s10 = 25'b0;
+ 
+    always @(posedge clk) begin
+        if (count_s1 >= 25000000) begin
+            count_s1 <= 25'b0;
+            clk_divs1 <= ~clk_divs1;
+        end
+        else count_s1 <= count_s1 + 1'b1;
+ 
+        if (count_s10 >= 250000) begin
+            count_s10 <= 25'b0;
+            clk_divs10 <= ~clk_divs10;
+        end
+        else count_s10 <= count_s10 + 1'b1;
+    end
+endmodule
+ 
