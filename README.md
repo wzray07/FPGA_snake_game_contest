@@ -63,7 +63,7 @@
     <td>在8 DIPSW</td>
   </tr>
 </table>
-
+DEMO影片：https://drive.google.com/file/d/1FG_OmrJjJJQXoYmiKrja0zRQJEnsirNF/view?usp=drive_link
 /圖2
 /圖3
 /圖4
