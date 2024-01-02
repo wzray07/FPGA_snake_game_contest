@@ -3,12 +3,14 @@ module final(
 	output reg[2:0] comm,
 	output reg enable,
 	output reg [7:0] point,
+	output reg [7:0] point2,
 	output reg beep,
 	output reg [6:0] seg,
 	output reg [1:0] COM,
 	input SYS_CLK,RST,PAUSE,UP,DOWN,LEFT,RIGHT);
  
 	reg [1:0]state;//01 is gameing 10 is end
+	reg end_state;
  
 	reg game_clk;
 	reg led_clk;
@@ -32,9 +34,9 @@ module final(
 	//reg ISPAUSED;
  
 	reg [24:0] led_counter;
-	reg [24:0] move_counter;
+	reg [25:0] move_counter;
 	reg [25:0] seg_counter;
-	reg [24:0] timer_counter;
+	reg [25:0] timer_counter;
 	reg [1:0] move_dir;
 	reg [3:0] time_num10;
  
@@ -93,6 +95,7 @@ module final(
 		item_y = 3'b110;
  
 		point =8'b00000000;
+		point2 =8'b00000000;
  
 		X = 3'b010;
 		Y = 3'b010;
@@ -107,6 +110,7 @@ module final(
 		body_mem_y[2] =3'b000;		
 		length = 3;
 		state =2'b01;
+		end_state = 0;
 		move_dir = 2'b00;//when game start ,snake dir//
  
 		seg = 7'b0000000;
@@ -125,7 +129,7 @@ module final(
 			game_clk <= 0;
 			//ISPAUSED <= 1;
 		end else */
-		if(PAUSE == 1'b1) ; // Do nothing to counter if paused  //ISPAUSED <= 1 
+		if(PAUSE == 1'b1 || end_state == 1) ; // Do nothing to counter if paused  //ISPAUSED <= 1 
 	/*	else if(point ==8'b11111111) begin
 			game_clk <= 0;
 			pass = 1'b1;*/
@@ -143,7 +147,7 @@ module final(
 		if(led_counter < led_count_to)
 			led_counter <= led_counter + 1;
 		else	begin
-			led_counter <= 25'b0;
+			led_counter <= 26'b0;
 			led_clk <= ~led_clk;
 		end
  
@@ -157,7 +161,7 @@ module final(
 		if(timer_counter < timer_to)
 			timer_counter <= timer_counter + 1;
 		else	begin
-			timer_counter <= 25'b0;
+			timer_counter <= 26'b0;
 			CLK_div1 <= ~CLK_div1;
 		end
 	end	
@@ -259,8 +263,8 @@ module final(
 			if(X==item_x && Y==item_y) begin
 				beep_clk = 1'b1;
 				if(point>8'b11111110) state=2'b10;
-				point = point*2 + 1'b1;
- 
+				if(point==8'b11111111) point2 = point2*2 + 1'b1;
+				else point = point*2 + 1'b1;
 				//change item pos
 				if(move_dir==2'b00 || move_dir == 2'b01) begin	
 					item_x = X +3'b011 +game_clk*2;
@@ -308,7 +312,10 @@ module final(
       else begin
          if (time_num01 == 4'b1001) begin
             time_num01 <= 4'b0000;
-            if (time_num10 == 4'b0110) time_num10 <= 4'b0110;
+            if (time_num10 == 4'b0101) begin
+					time_num10 <= 4'b0110;
+					end_state = 1;
+				end
             else time_num10 <= time_num10 + 1'b1;
          end
          else time_num01 <= time_num01 + 1'b1;
@@ -331,7 +338,6 @@ module final(
                 4'b0111: seg = 7'b0001111;
                 4'b1000: seg = 7'b0000000;
                 4'b1001: seg = 7'b0000100;
-                default: seg = 7'b1111111;
             endcase
         end
         else if (COM == 2'b10) begin
@@ -342,29 +348,10 @@ module final(
                 4'b0011: seg = 7'b0000110;
                 4'b0100: seg = 7'b1001100;
                 4'b0101: seg = 7'b0100100;
-                default: seg = 7'b1111111;
+					 default: seg = 7'b1111111;
             endcase
         end
     end
 	//
-endmodule
- 
-module divfreq(input clk, output reg clk_divs1, output reg clk_divs10);
-    reg [24:0] count_s1 = 25'b0;
-    reg [24:0] count_s10 = 25'b0;
- 
-    always @(posedge clk) begin
-        if (count_s1 >= 25000000) begin
-            count_s1 <= 25'b0;
-            clk_divs1 <= ~clk_divs1;
-        end
-        else count_s1 <= count_s1 + 1'b1;
- 
-        if (count_s10 >= 250000) begin
-            count_s10 <= 25'b0;
-            clk_divs10 <= ~clk_divs10;
-        end
-        else count_s10 <= count_s10 + 1'b1;
-    end
 endmodule
  
