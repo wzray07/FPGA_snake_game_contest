@@ -19,8 +19,8 @@
 
 ### 晶片請使用 Cyclone III EP3C10E144C8
 ### Pin腳位:
-/PIN-1.jpeg
-
+![image](PIN-1.jpeg)
+![image](PIN-2.jpeg)
 ## Usage
 
 * 原有功能: 在8x8的LED全彩點矩陣上，隨機生成蛇的食物(會避開蛇的身體位置)、暫停功能、超過8分就將蛇的身體變色
