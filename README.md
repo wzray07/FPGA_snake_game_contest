@@ -19,7 +19,7 @@
 
 ### 晶片請使用 Cyclone III EP3C10E144C8
 ### Pin腳位:
-/圖1
+/PIN-1.jpeg
 
 ## Usage
 
