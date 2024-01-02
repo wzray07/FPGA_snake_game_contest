@@ -20,6 +20,8 @@
 ### 晶片請使用 Cyclone III EP3C10E144C8
 ### 介面
 ![image](介面.jpg)
+###  遊戲畫面
+![image](IMG_7019.jpg)
 ### Pin腳位:
 ![image](PIN-1.jpeg)
 ![image](PIN-2.jpeg)
