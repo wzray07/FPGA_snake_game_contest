@@ -67,10 +67,13 @@
     <td>在8 DIPSW</td>
   </tr>
 </table>
-DEMO影片：https://drive.google.com/file/d/1FG_OmrJjJJQXoYmiKrja0zRQJEnsirNF/view?usp=drive_link
-/圖2
-/圖3
-/圖4
+DEMO影片：
+二食物版
+https://drive.google.com/file/d/1FG_OmrJjJJQXoYmiKrja0zRQJEnsirNF/view?usp=drive_link
+
+單食物版
+https://drive.google.com/file/d/1TcYCFDjPnZM70Npev91WXcD38mgQD3mq/view?usp=drivesdk
+
 
 ## 參考
 https://github.com/vale5230/Snake-Game-in-FPGA
