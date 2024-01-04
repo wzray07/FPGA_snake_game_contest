@@ -15,7 +15,7 @@ module final(
 	reg game_clk;
 	reg led_clk;
 	reg beep_clk;
- 
+	reg [3:0] empty;
 	reg [7:0] map [7:0];// LED map 8*8  map[x][~y]
  
 	reg [2:0] X,Y;//snake head pos
@@ -33,10 +33,10 @@ module final(
 	reg [5:0] j;
 	//reg ISPAUSED;
  
-	reg [24:0] led_counter;
+	reg [25:0] led_counter;
 	reg [25:0] move_counter;
 	reg [25:0] seg_counter;
-	reg [25:0] timer_counter;
+	reg [26:0] timer_counter;
 	reg [1:0] move_dir;
 	reg [3:0] time_num10;
  
@@ -117,7 +117,7 @@ module final(
 		COM = 2'b00;
 		time_num10 = 4'b0000;
 		time_num01 = 4'b0000;
- 
+		empty = 4'b00;
 	end
  
  
@@ -140,7 +140,7 @@ module final(
 		else begin
 			//ISPAUSED <= 0;
 			game_clk <= ~game_clk;
-			move_counter <= 25'b0;
+			move_counter <= 26'b0;
 		end
  
 		//led	clk
@@ -161,7 +161,7 @@ module final(
 		if(timer_counter < timer_to)
 			timer_counter <= timer_counter + 1;
 		else	begin
-			timer_counter <= 26'b0;
+			timer_counter <= 27'b0;
 			CLK_div1 <= ~CLK_div1;
 		end
 	end	
